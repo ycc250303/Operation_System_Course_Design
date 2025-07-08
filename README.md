@@ -1,6 +1,6 @@
 # Operation_System_Course_Design
 
-2025 同济大学擦着系统课程设计
+2025 同济大学操作系统课程设计
 
 ## 仓库组成
 
