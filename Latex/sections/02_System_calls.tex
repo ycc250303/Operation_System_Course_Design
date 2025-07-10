@@ -1,0 +1,292 @@
+\section{实验二：system calls}\label{sec:system calls}
+
+向 xv6 添加一些新的系统调用，理解它们的工作原理，了解 xv6 内核的一些内部原理。
+
+\subsection{实验目的}
+
+\begin{enumerate}
+	\item 进一步了解系统调用。
+	\item 掌握添加系统调用的方法。
+	\item 理解系统调用的工作原理和 xv6 内核的工作过程。
+\end{enumerate}
+
+\subsection{实验内容}
+
+\begin{enumerate}
+	\item 为 xv6 添加系统调用跟踪功能。
+	\item 添加系统调用 sysinfo，用于收集正在运行的系统的信息。
+\end{enumerate}
+
+\subsection{实验准备}
+
+\begin{enumerate}
+	\item 阅读 xv6 参考书的第 2 章，第 4 章的 4.3 和 4.4 节。
+	\item 阅读系统调用的用户空间代码 user/user.h 和 user/usys.pl。
+	\item 阅读内核空间代码 kernel/syscall.h 和 kernel/syscall.c。
+	\item 阅读与进程相关的代码 kernel/proc.h 和 kernel/proc.c。
+\end{enumerate}
+
+\subsection{实验步骤}
+
+\subsubsection{实现System call tracing}
+
+\begin{enumerate}
+	\item 将 \texttt{\$U/\_trace} 添加到 Makefile 中。
+	\item 根据题目要求，在 kernel/proc.h 中，为进程结构体 proc 添加成员变量 trace\_mask ，用于表示每一个进程的掩码。如\cref{lst:proc}所示。
+	\item 在 user/user.h 中加入代码int trace(int)；在user/usys.pl中添加代码entry("trace")；在 kernel/syscall 中添加代码 \#define SYS\_trace 22；
+	\item 在kernel/syscall.c中添加一个数组static char *syscall\_name[]，用于记录每个进程的名称。如\cref{lst:syscall_name}所示
+	\item 修改 kernel/syscall.c 中的 syscall 函数，增加两行，通过掩码和编号做与运算进行输出。如\cref{lst:syscall}所示。
+	\item 修改 hernel/proc.c 中的 fork 函数，添加一行 np->trace\_mask = p->trace\_mask，传递mask参数。
+	\item 在 kernel/sysproc.c 中添加一个 sys\_trace() 函数，将参数传递给 trace\_mask 即可。如所示。
+	\item 测试 trace 方法，成功运行。如\cref{fig:test_trace(1)}和\cref{fig:test_trace(1)}所示。
+\end{enumerate}
+
+\begin{listing}[!htb]
+	\begin{minted}{c}
+// Per-process state
+struct proc {
+    struct spinlock lock;// 进程锁
+    ...
+    int trace_mask;// 增加mask
+};
+	\end{minted}
+	\caption{表示进程状态的结构体}\label{lst:proc}
+\end{listing}
+
+\begin{listing}[!htb]
+	\begin{minted}{c}
+static char *syscall_name[] = {
+    "fork",    // SYS_fork
+    "exit",    // SYS_exit
+    "wait",    // SYS_wait
+    "pipe",    // SYS_pipe
+    "read",    // SYS_read
+    "kill",    // SYS_kill
+    "exec",    // SYS_exec
+    "fstat",   // SYS_fstat
+    "chdir",   // SYS_chdir
+    "dup",     // SYS_dup
+    "getpid",  // SYS_getpid
+    "sbrk",    // SYS_sbrk
+    "sleep",   // SYS_sleep
+    "uptime",  // SYS_uptime
+    "open",    // SYS_open
+    "write",   // SYS_write
+    "mknod",   // SYS_mknod
+    "unlink",  // SYS_unlink
+    "link",    // SYS_link
+    "mkdir",   // SYS_mkdir
+    "close",   // SYS_close
+    "trace",   // SYS_trace
+    "sysinfo"  // SYS_sysinfo
+};
+	\end{minted}
+	\caption{记录进程名称的数组}\label{lst:syscall_name}
+\end{listing}
+
+\begin{listing}[!htb]
+	\begin{minted}{c}
+void
+syscall(void)
+{
+    int num;
+    struct proc *p = myproc();
+    
+    num = p->trapframe->a7;
+    if(num > 0 && num < NELEM(syscalls) && syscalls[num]) {
+        p->trapframe->a0 = syscalls[num]();
+        if((p->trace_mask>>num)&1){
+            printf("%d: syscall %s -> %d\n",p->pid,syscall_name[num-1],p->trapframe->a0);
+        }
+    } else {
+        printf("%d %s: unknown sys call %d\n",
+        p->pid, p->name, num);
+        p->trapframe->a0 = -1;
+    }
+}
+	\end{minted}
+	\caption{syscall函数的实现}\label{lst:syscall}
+\end{listing}
+
+\begin{listing}[!htb]
+	\begin{minted}{c}
+uint64
+sys_trace(void)
+{
+    int mask;
+    if(argint(0, &mask) < 0){
+        return -1;
+    }
+
+    struct proc *p = myproc();
+    p->trace_mask = mask;
+    return 0;
+}
+	\end{minted}
+	\caption{sys\_trace函数的实现}\label{lst:sys_trace}
+\end{listing}
+
+\begin{figure}[!htb]
+	\begin{minipage}{0.35\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{test_trace(1)}
+		\caption{测试trace方法(1)}
+		\label{fig:test_trace(1)}
+	\end{minipage}\hfill
+	\begin{minipage}{0.35\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{test_trace(2)}
+		\caption{测试trace方法(2)}
+		\label{fig:test_trace(2)}
+	\end{minipage}
+\end{figure}
+
+\subsubsection{实现Sysinfo}
+
+统计可用的内存数量：
+
+\begin{enumerate}
+	\item 根据提示，阅读代码 kernel/kalloc.c。
+	\item 在 kalloc.c 中，\cref{lst:kmem}包含了空闲地址的链表指针。
+	\item 要统计可用的内存空间大小，需要遍历空闲链表 freelist，统计链表节点个数，在乘以单个内存页的大小PGSIZE。
+	\item 参考文件中的其他函数，实现统计功能collect\_used\_proc，如\cref{lst:collect_freemem}所示。
+	\item 需要注意，在进行统计操作时需要上锁。
+\end{enumerate}
+
+\begin{listing}[!htb]
+	\begin{minted}{c}
+struct {
+	struct spinlock lock;    // Spinlock to protect the free list.
+	struct run *freelist;    // Pointer to the head of the free list.
+} kmem;
+	\end{minted}
+	\caption{物理内存分配器定义}\label{lst:kmem}
+\end{listing}
+
+\begin{listing}[!htb]
+	\begin{minted}{c}
+int collect_freemem(){
+    struct run *r;
+    int free_memory_count = 0;
+    acquire(&kmem.lock);
+    r = kmem.freelist;
+    while(r){
+        r = r->next;
+        free_memory_count++;
+    }
+    release(&kmem.lock);
+    return free_memory_count * PGSIZE;
+}
+	\end{minted}
+	\caption{统计可用的内存空间大小}\label{lst:collect_freemem}
+\end{listing}
+
+统计已使用的进程数量：
+
+\begin{enumerate}
+	\item 根据提示，阅读代码 kernel/proc.c 和 kernel/proc.h；
+	\item 在proc.c中，\cref{lst:proc-array}保存着所有的进程，进程的状态存储在，\cref{lst:procstate}中。
+	\item 要统计未使用进程的数量，即为统计 PCB 表 proc 中进程状态不是 UNUESD 的进程数量。
+	\item 参考文件中的其他函数，实现统计功能collect\_used\_proc，如\cref{lst:collect_used_proc}所示。
+	\item 需要注意，在进行统计操作时需要上锁。
+\end{enumerate}
+
+\begin{listing}[!htb]
+	\begin{minted}{c}
+struct proc proc[NPROC]; 
+	\end{minted}
+	\caption{PCB表的定义}\label{lst:proc_array}
+\end{listing}
+
+\begin{listing}[!htb]
+	\begin{minted}{c}
+enum procstate {
+    UNUSED, 
+    USED, 
+    SLEEPING, 
+    RUNNABLE, 
+    RUNNING, 
+    ZOMBIE 
+};
+	\end{minted}
+	\caption{进程的状态定义}\label{lst:procstate}
+\end{listing}
+
+\begin{listing}[!htb]
+	\begin{minted}{c}
+int
+collect_used_proc(){
+    struct proc *p;
+    int used_proc_cnt = 0;
+
+    for(p = proc;p < &proc[NPROC];p++){
+        acquire(&p->lock);
+        if(p->state != UNUSED){
+            used_proc_cnt++;
+        }
+        release(&p->lock);
+    }
+    return used_proc_cnt;
+}
+	\end{minted}
+	\caption{collect\_used\_proc函数的实现}\label{lst:collect_used_proc}
+\end{listing}
+
+Sysinfo实现：
+\begin{enumerate}
+	\item 将 \texttt{\$U/\_sysinfotest} 添加到 Makefile 中。
+	\item 在 user/user.h 中声明结构体 sysinfo 并加入代码 int sysinfo(struct sysinfo *)；在user/usys.pl中添加代码entry("sysinfo")；在 kernel/syscall 中添加代码 \#define SYS\_sysinfo 23；
+	\item 在 kernel/defs.h 中，声明函数 collect\_freemem 和 collect\_used\_proc。
+	\item 在 kernel/sysproc.c 中，创建函数 sys\_sysinfo，通过 argaddr 传递地址参数，将可用内存大小和已使用进程数量赋值给 sysinfo 收集有关正在运行的系统的信息，如\cref{lst:sys_sysinfo}所示。
+	\item 测试 sysinfo 方法，成功运行。如\cref{fig:test_sysinfo}所示。
+\end{enumerate}
+
+\begin{figure}[!htb]
+	\centering
+	\includegraphics[width=0.4\textwidth]{test_sysinfo}
+	\caption{测试sysinfo方法}
+	\label{fig:test_sysinfo}
+\end{figure}
+
+\begin{listing}[!htb]
+	\begin{minted}{c}
+uint64
+sys_sysinfo(void)
+{
+    struct sysinfo info;
+    uint64 addr;
+    struct proc *p = myproc();
+
+    info.nproc = collect_used_proc();
+    info.freemem = collect_freemem();
+    if(argaddr(0, &addr) < 0)
+        return -1;
+    
+    if(copyout(p->pagetable, addr, (char *)&info, sizeof(info)) < 0)
+        return -1; 
+    return 0;
+}
+	\end{minted}
+	\caption{sys\_sysinfo函数的实现}\label{lst:sys_sysinfo}
+\end{listing}
+
+\subsubsection{综合测试}
+
+在xv6-labs-2021目录下创建一个time.txt文件，记录我完成该lab花费的时间，使用make grade对lab1进行综合测试，测试通过。
+
+\begin{figure}[!htb]
+	\centering
+	\includegraphics[width=0.5\textwidth]{test_lab2}
+	\caption{lab2综合测试}
+	\label{fig:test_lab2}
+\end{figure}
+
+\subsection{实验小结}
+
+本次实验实际上是对系统调用的深入理解，在做这次实验的过程中我遇到的问题相对比较多。在第一个 trace 的过程中，需要阅读比较多的内核 kernel 源代码，包括 syscall()等函数，只有熟悉了这些函数才能够比较好的完成实验内容。
+
+在完成第二部分 sysinfo 的时候，由于对进程的定义仅仅停留在课本上，因此刚开始的时候难以下手。但是通过查阅相关资料，我了解到 xv6 中存储所有进程的变量和进程状态变量，仿照着已经存在的内核函数，终于完成了该部分。
+
+不过，尽管完成了该实验，但是我还是存在一些疑惑，比如 user/user.h 和 kernel/syscall.h 究竟是如何起作用的？在一众C语言中，为什么user/usys.pl采用perl语言，它又是如何起作用的？希望这些疑惑能我能在接下来的学习中得到解答。
+
+总体来说，这次实验让我在实验一的基础上更加了解系统调用，同时也为未来的实验打下了比较扎实的基础。此外，也让我更加熟悉了写系统调用的方法， 对内核和用户也有了比较好的区分。
