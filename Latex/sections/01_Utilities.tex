@@ -7,21 +7,25 @@
 \begin{enumerate}
 	\item 初步掌握 xv6 这一操作系统内核和用户。
 	\item 了解系统调用。
-	\item 了解父子进程，以及 fork()函数创建父子进程的方法。
+	\item 了解父子进程，以及 \texttt{fork()}函数创建父子进程的方法。
 	\item 掌握素数筛，以及利用管道编写素数筛的方法。
-	\item 完成 find 和 xargs 程序的编写。
+	\item 完成 \texttt{find} 和 \texttt{xargs} 程序的编写。
 \end{enumerate}
 
 \subsection{实验内容}
 
 \begin{enumerate}
 	\item 运行xv6
-	\item 为 xv6 实现 UNIX 程序 sleep：sleep 应该暂停一段用户所指定的时间。
+	\item 为 xv6 实现 UNIX 程序 \texttt{sleep}：sleep 应该暂停一段用户所指定的时间。
 	\item 编写一个程序，使用 UNIX 系统调用在两个进程之间通过一对管道“乒乓” 一个字节，每个管道一个。
 	\item 使用管道编写并发版本的主筛。
 	\item 编写一个简单版本的 UNIX 查找程序：查找具有特定名称的目录树中的所有文件。
 	\item 编写一个简单版本的 UNIX xargs 程序：从标准输入中读取行并为每一行运行一个命令，将该行作为命令的参数提供。
 \end{enumerate}
+
+\subsection{实验准备}
+
+该实验是为了让学习者熟悉 xv6 及其系统调用，没有前置条件。
 
 \subsection{实验步骤}
 
@@ -156,7 +160,7 @@ main(int argc, char *argv[]){
 实现步骤：
 \begin{enumerate}
 	\item 创建管道。
-	\item 创建缓冲区，用于存储所需要传送的消息。同时，借助 fork()创建子进程，通过返回值来判断当前是父进程还是子进程，返回值大于0是父进程，等于0是子进程。
+	\item 创建缓冲区，用于存储所需要传送的消息。同时，借助 \texttt{fork()}创建子进程，通过返回值来判断当前是父进程还是子进程，返回值大于0是父进程，等于0是子进程。
 	\item 在Makefile文件中添加该方法
 	\item 测试pingpong方法，结果如\cref{fig:pingpong} 所示。
 \end{enumerate}
@@ -270,10 +274,10 @@ main(){
 
 实现步骤：
 \begin{enumerate}
-	\item 查看user/ls.c学习如何读取目录。
+	\item 查看 \texttt{user/ls.c} 学习如何读取目录。
 	\item 采用深度优先的方法进行递归，需要注意避免递归"."和".."，防止无限递归。
-	\item 在Makefile文件中添加该方法。
-	\item 测试 find 方法，结果如\cref{fig:test_find} 所示。
+	\item 在 Makefile 文件中添加该方法。
+	\item 测试 \texttt{find} 方法，结果如\cref{fig:test_find} 所示。
 \end{enumerate}
 
 \begin{listing}[!htb]
@@ -399,16 +403,16 @@ main(int argc, char *argv[])
 
 \subsubsection{实现xargs}
 
-xargs 是一个 Unix 命令，可用于从标准输入构建和执行命令。其作用是将标准输入（stdin）中的内容，转换为命令行参数，传递给指定的命令执行。
+\texttt{xargs} 是一个 Unix 命令，可用于从标准输入构建和执行命令。其作用是将标准输入（stdin）中的内容，转换为命令行参数，传递给指定的命令执行。
 
-exec 命令是一个强大的 Shell 内置命令，用于将当前 Shell 进程替换为新的命令进程。与创建新进程的典型命令不同， exec 命令会转换现有进程，直接影响脚本的效率和行为。“exec” 会使用指定的命令覆盖当前 Shell 会话，而不会创建新的进程。这一独特属性使得“ exec” 在修改 Shell 环境或执行注重性能的命令时特别有用，因为它避免了创建新进程的开销。
+\texttt{exec} 命令是一个强大的 Shell 内置命令，用于将当前 Shell 进程替换为新的命令进程。与创建新进程的典型命令不同， \texttt{exec} 命令会转换现有进程，直接影响脚本的效率和行为。\texttt{exec} 会使用指定的命令覆盖当前 Shell 会话，而不会创建新的进程。这一独特属性使得 \texttt{exec} 在修改 Shell 环境或执行注重性能的命令时特别有用，因为它避免了创建新进程的开销。
 
 实现步骤：
 \begin{enumerate}
-	\item 学习xargs和exec命令的作用及用法。
+	\item 学习 \texttt{xargs} 和 \texttt{exec} 命令的作用及用法。
 	\item 需要解决的主要问题是对字符串进行处理。其中，'|' 之前的结果会在缓冲流中。需要通过读取缓冲流并且分解字符串，类似于 python 中的 split 函数。
 	\item 在Makefile文件中添加该方法。
-	\item 测试 xargs 方法，结果如\cref{fig:test_xargs} 所示。
+	\item 测试 \texttt{xargs} 方法，结果如\cref{fig:test_xargs} 所示。
 \end{enumerate}
 
 \begin{listing}[!htb]
@@ -467,7 +471,7 @@ main(int argc,char *argv[]){
 
 \subsubsection{综合测试}
 
-在user目录下创建一个time.txt文件，记录我完成该lab花费的时间，使用make grade对lab1进行综合测试，。
+在xv6-labs-2021目录下创建一个time.txt文件，记录我完成该lab花费的时间，使用 \texttt{make grade} 对lab1进行综合测试，测试通过。
 
 \begin{figure}[!htb]
 	\centering

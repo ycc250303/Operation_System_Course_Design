@@ -202,17 +202,17 @@ xv6系统调用流程图如所示，以下为详细过程：
 
 \subsection{实验步骤}
 
-\subsubsection{实现System call tracing}
+\subsubsection{实现 System call tracing}
 
 \begin{enumerate}
 	\item 将 \texttt{\$U/\_trace} 添加到 Makefile 中。
-	\item 根据题目要求，在 \texttt{kernel/proc.h} 中，为进程结构体 \texttt{proc} 添加成员变量 \texttt{trace\_mask} ，用于表示每一个进程的掩码。如\cref{lst:proc}所示。
+	\item 根据题目要求，在 \texttt{kernel/proc.h} 中，为进程结构体 \texttt{proc} 添加成员变量 \texttt{trace\_mask} ，用于表示每一个进程的掩码。如\cref{lst:proc} 所示。
 	\item 在 \texttt{user/user.h} 中加入代码\texttt{int trace(int)}；在\texttt{user/usys.pl}中添加代码\texttt{entry("trace")}；在 \texttt{kernel/syscall} 中添加代码 \texttt{\#define SYS\_trace 22}；
-	\item 在 \texttt{kernel/syscall.c} 中添加一个数组\texttt{static char *syscall\_name[]}，用于记录每个进程的名称。如\cref{lst:syscall_name}所示
+	\item 在 \texttt{kernel/syscall.c} 中添加一个数组\texttt{static char *syscall\_name[]}，用于记录每个进程的名称。如\cref{lst:syscall_name} 所示
 	\item 修改 \texttt{kernel/syscall.c} 中的 \texttt{syscall} 函数，增加两行，通过掩码和编号做与运算进行输出。如\cref{lst:syscall}所示。
 	\item 修改 \texttt{kernel/proc.c} 中的 \texttt{fork} 函数，添加一行 \texttt{np->trace\_mask = p->trace\_mask}，传递mask参数。
-	\item 在 \texttt{kernel/sysproc.c} 中添加一个 \texttt{sys\_trace()} 函数，将参数传递给 \texttt{trace\_mask} 即可。如\cref{lst:sys_trace}所示。
-	\item 测试 trace 方法，成功运行。如\cref{fig:test_trace(1)}和\cref{fig:test_trace(2)}所示。
+	\item 在 \texttt{kernel/sysproc.c} 中添加一个 \texttt{sys\_trace()} 函数，将参数传递给 \texttt{trace\_mask} 即可。如\cref{lst:sys_trace} 所示。
+	\item 测试 trace 方法，成功运行。如\cref{fig:test_trace(1)} 和\cref{fig:test_trace(2)} 所示。
 \end{enumerate}
 
 \begin{listing}[!htb]
@@ -302,13 +302,13 @@ sys_trace(void)
 	\label{fig:test_trace(2)}
 \end{figure}
 
-\subsubsection{实现Sysinfo}
+\subsubsection{实现 Sysinfo}
 
 统计可用的内存数量：
 
 \begin{enumerate}
 	\item 根据提示，阅读代码 \texttt{kernel/kalloc.c}。
-	\item 在 \texttt{kalloc.c} 中，\cref{lst:kmem}包含了空闲地址的链表指针。
+	\item 在 \texttt{kalloc.c} 中，\cref{lst:kmem} 包含了空闲地址的链表指针。
 	\item 要统计可用的内存空间大小，需要遍历空闲链表 \texttt{freelist}，统计链表节点个数，在乘以单个内存页的大小 \texttt{PGSIZE}。
 	\item 参考文件中的其他函数，实现统计功能\texttt{collect\_used\_proc}，如\cref{lst:collect_freemem}所示。
 	\item 需要注意，在进行统计操作时需要上锁。
@@ -317,8 +317,8 @@ sys_trace(void)
 \begin{listing}[!htb]
 	\begin{minted}{c}
 struct {
-	struct spinlock lock;    // Spinlock to protect the free list.
-	struct run *freelist;    // Pointer to the head of the free list.
+    struct spinlock lock;    // Spinlock to protect the free list.
+    struct run *freelist;    // Pointer to the head of the free list.
 } kmem;
 	\end{minted}
 	\caption{物理内存分配器定义}\label{lst:kmem}
@@ -346,7 +346,7 @@ int collect_freemem(){
 
 \begin{enumerate}
 	\item 根据提示，阅读代码 \texttt{kernel/proc.c} 和 \texttt{kernel/proc.h}；
-	\item 在 \texttt{proc.c}中，\cref{lst:proc-array}保存着所有的进程，进程的状态存储在，\cref{lst:procstate}中。
+	\item 在 \texttt{proc.c}中，\cref{lst:proc_array} 保存着所有的进程，进程的状态存储在，\cref{lst:procstate}中。
 	\item 要统计未使用进程的数量，即为统计 \texttt{PCB} 表 \texttt{proc} 中进程状态不是 \texttt{UNUESD} 的进程数量。
 	\item 参考文件中的其他函数，实现统计功能 \texttt{collect\_used\_proc} ，如\cref{lst:collect_used_proc}所示。
 	\item 需要注意，在进行统计操作时需要上锁。
