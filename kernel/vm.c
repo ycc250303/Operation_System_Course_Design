@@ -490,7 +490,6 @@ cowalloc(pagetable_t pagetable, uint64 va) {
       return 0;
     }
 
-    // 将原来的物理内存引用计数减1
     kfree((char*)PGROUNDDOWN(pa));
     return mem;
   }
