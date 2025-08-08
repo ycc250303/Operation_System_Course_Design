@@ -21,7 +21,7 @@ barrier_init(void)
   assert(pthread_cond_init(&bstate.barrier_cond, NULL) == 0);
   bstate.nthread = 0;
 }
- static void 
+static void 
 barrier()
 {
   // YOUR CODE HERE
