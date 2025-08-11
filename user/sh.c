@@ -77,7 +77,7 @@ runcmd(struct cmd *cmd)
       exit(1);
     exec(ecmd->argv[0], ecmd->argv);
     fprintf(2, "exec %s failed\n", ecmd->argv[0]);
-    exit(1);
+    break;
 
   case REDIR:
     rcmd = (struct redircmd*)cmd;
