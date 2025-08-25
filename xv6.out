@@ -1,0 +1,44 @@
+riscv64-linux-gnu-ld: warning: user/_stats has a LOAD segment with RWX permissions
+riscv64-linux-gnu-ld: warning: user/_kalloctest has a LOAD segment with RWX permissions
+riscv64-linux-gnu-ld: warning: user/_bcachetest has a LOAD segment with RWX permissions
+nmeta 46 (boot, super, log blocks 30 inode blocks 13, bitmap blocks 1) blocks 954 total 1000
+balloc: first 633 blocks have been allocated
+balloc: write bitmap block at sector 45
+*** Now run 'gdb' in another window.
+
+xv6 kernel is booting
+
+hart 1 starting
+hart 2 starting
+init: starting sh
+$ kalloctest
+start test1
+test1 results:
+--- lock kmem/bcache stats
+lock: kmem: #test-and-set 0 #acquire() 54576
+lock: kmem: #test-and-set 0 #acquire() 184732
+lock: kmem: #test-and-set 0 #acquire() 193753
+lock: bcache: #test-and-set 0 #acquire() 9
+lock: bcache: #test-and-set 0 #acquire() 12
+lock: bcache: #test-and-set 0 #acquire() 15
+lock: bcache: #test-and-set 0 #acquire() 12
+lock: bcache: #test-and-set 0 #acquire() 23
+lock: bcache: #test-and-set 0 #acquire() 28
+lock: bcache: #test-and-set 0 #acquire() 93
+lock: bcache: #test-and-set 0 #acquire() 1094
+lock: bcache: #test-and-set 0 #acquire() 16
+lock: bcache: #test-and-set 0 #acquire() 9
+lock: bcache: #test-and-set 0 #acquire() 9
+lock: bcache: #test-and-set 0 #acquire() 9
+lock: bcache: #test-and-set 0 #acquire() 9
+--- top 5 contended locks:
+lock: proc: #test-and-set 42671 #acquire() 130080
+lock: virtio_disk: #test-and-set 41748 #acquire() 141
+lock: pr: #test-and-set 25300 #acquire() 5
+lock: proc: #test-and-set 19026 #acquire() 130085
+lock: proc: #test-and-set 10806 #acquire() 130045
+tot= 0
+test1 OK
+start test2
+total free number of pages: 32492 (out of 32768)
+qemu-system-riscv64: terminating on signal 2
