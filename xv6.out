@@ -1,3 +1,9 @@
+riscv64-linux-gnu-ld: warning: user/_zombie has a LOAD segment with RWX permissions
+riscv64-linux-gnu-ld: warning: user/_nettests has a LOAD segment with RWX permissions
+nmeta 46 (boot, super, log blocks 30 inode blocks 13, bitmap blocks 1) blocks 954 total 1000
+balloc: first 567 blocks have been allocated
+balloc: write bitmap block at sector 45
+*** Now run 'gdb' in another window.
 
 xv6 kernel is booting
 
@@ -13,4 +19,4 @@ testing DNS
 DNS arecord for pdos.csail.mit.edu. is 128.52.129.126
 DNS OK
 all tests passed.
-$ qemu-system-riscv64: terminating on signal 15 from pid 1047 (make)
+$ qemu-system-riscv64: terminating on signal 15 from pid 7017 (make)
