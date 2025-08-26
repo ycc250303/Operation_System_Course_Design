@@ -1,3 +1,7 @@
+riscv64-linux-gnu-ld: warning: user/_usertests has a LOAD segment with RWX permissions
+riscv64-linux-gnu-ld: warning: user/_grind has a LOAD segment with RWX permissions
+riscv64-linux-gnu-ld: warning: user/_wc has a LOAD segment with RWX permissions
+riscv64-linux-gnu-ld: warning: user/_zombie has a LOAD segment with RWX permissions
 riscv64-linux-gnu-ld: warning: user/_uthread has a LOAD segment with RWX permissions
 nmeta 46 (boot, super, log blocks 30 inode blocks 13, bitmap blocks 1) blocks 954 total 1000
 balloc: first 560 blocks have been allocated
@@ -317,4 +321,4 @@ thread_c: exit after 100
 thread_a: exit after 100
 thread_b: exit after 100
 thread_schedule: no runnable threads
-$ qemu-system-riscv64: terminating on signal 15 from pid 11274 (make)
+$ qemu-system-riscv64: terminating on signal 15 from pid 5960 (make)
